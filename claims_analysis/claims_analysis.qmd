@@ -1,0 +1,69 @@
+---
+title: "Claims Analysis"
+format: 
+  html:
+    embed-resources: true
+    code-fold: true
+    toc: true
+author: "Ethan Sager"
+editor: source
+date: today
+---
+
+## Setup
+
+```{r}
+#| label: setup
+#| message: false
+#| warning: false
+library(tidyverse)
+
+claims <- read_csv("ICSA.csv")
+```
+
+## Overview of Claims Data
+
+```{r}
+glimpse(claims)
+
+claims %>%
+    mutate(month = month(observation_date, label = TRUE)) %>%
+    group_by(month) %>%
+    summarise(ICSA = mean(ICSA)) %>%
+    filter(ICSA == min(ICSA))
+
+```
+
+```{r}
+sum_claims <- claims %>%
+    mutate(year = year(observation_date)) %>%
+    group_by(year) %>%
+    summarise(avg_ICSA = mean(ICSA) / 1000)
+
+sum_claims %>%
+    filter(year != 2020) %>%
+    slice_max(avg_ICSA, n = 1)
+
+sum_claims %>%
+    ggplot(aes(x = year, y = avg_ICSA)) +
+    geom_line() +
+    geom_point() +
+    labs(
+        title = "Average ICSA by Year",
+        x = "Year",
+        y = "Average ICSA in thousands"
+    ) +
+    theme_minimal()
+
+```
+
+|     |     |     |     |
+|-----|-----|-----|-----|
+|     |     |     |     |
+|     |     |     |     |
+
+# Root mean square error
+
+$$
+RMSE = \sqrt{\frac{1}{n} \sum_{i=1}^{n} (y_i - \hat{y}_i)^2}
+$$
